@@ -1,0 +1,85 @@
+data:
+  calculate_statistics: false
+  data_dir: /home/berkay/Desktop/CSIGen/TemporalWiMAE/train_35
+  debug_size: null
+  normalize: true
+  statistics:
+    mean_power: 1.4218511784624965e-11
+  val_split: 0.1
+logging:
+  exp_name: pilotwimae_dec_only_fst_tk4_sm075_dec6_from_tk2_sm09_fst_scaleaux_noiserobust_snr40
+  log_dir: runs
+  log_every_n_steps: 100
+  tensorboard: true
+model:
+  decoder_layers: 6
+  decoder_nhead: 8
+  embedding:
+    type: linear
+  encoder_dim: 128
+  encoder_layers: 3
+  encoder_nhead: 8
+  encoder_type: factorized
+  input_shape:
+  - 14
+  - 32
+  - 32
+  masking:
+    num_time_keep: 4
+    spatial_mask_ratio: 0.75
+    strategy: factorized
+  norm_first: false
+  patch_size:
+  - 1
+  - 4
+  - 4
+  positional_encoding:
+    decoder:
+      type: sinusoidal_concat
+    encoder:
+      type: sinusoidal_concat
+  scale_loss:
+    eps: 1.0e-08
+    lambda_dec: 0.1
+    lambda_enc: 0.1
+    use_scale_loss: false
+  type: pilotwimae
+training:
+  batch_size: 448
+  device: cuda:1
+  epochs: 200
+  freeze_encoder: true
+  gradient_clip_val: 1.0
+  loss: mse
+  min_delta: 0.0001
+  mixed_precision: true
+  norm_patch_loss: true
+  norm_patch_loss_eps: 1.0e-06
+  num_workers: 4
+  optimizer:
+    betas:
+    - 0.9
+    - 0.999
+    lr: 0.0001
+    type: adamw
+    weight_decay: 0.005
+  patience: 200
+  resume:
+    checkpoint_path: runs/self_supervised/FST_noise_scale/best_checkpoint.pt
+    encoder_only: true
+    load_optimizer: false
+    load_scheduler: false
+    reset_best_val_loss: true
+    reset_patience: true
+  save_best: true
+  save_checkpoint_every_n: 10
+  scale_loss:
+    eps: 1.0e-08
+    lambda_dec: 0.1
+    lambda_enc: 0.1
+    use_scale_loss: false
+  scheduler:
+    T_max: 200
+    eta_min: 5.0e-06
+    type: cosine
+    warmup_epochs: 10

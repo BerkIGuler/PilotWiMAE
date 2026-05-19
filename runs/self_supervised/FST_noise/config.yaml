@@ -1,0 +1,70 @@
+data:
+  calculate_statistics: false
+  data_dir: /opt/shared/datasets/CSIGen/TemporalWiMAE/train_35
+  debug_size: null
+  normalize: true
+  statistics:
+    mean_power: 1.4218511784624965e-11
+  val_split: 0.1
+logging:
+  log_dir: runs
+  log_every_n_steps: 100
+  tensorboard: true
+model:
+  decoder_layers: 2
+  decoder_nhead: 4
+  embedding:
+    type: linear
+  encoder_dim: 128
+  encoder_layers: 3
+  encoder_nhead: 8
+  encoder_type: factorized
+  input_shape:
+  - 14
+  - 32
+  - 32
+  masking:
+    num_time_keep: 2
+    spatial_mask_ratio: 0.9
+    strategy: factorized
+  norm_first: false
+  patch_size:
+  - 1
+  - 4
+  - 4
+  positional_encoding:
+    decoder:
+      type: sinusoidal_concat
+    encoder:
+      type: sinusoidal_concat
+  type: pilotwimae
+training:
+  batch_size: 512
+  device: cuda:0
+  epochs: 500
+  gradient_clip_val: 1.0
+  loss: mse
+  min_delta: 0.0001
+  mixed_precision: true
+  noise_robust:
+    enabled: true
+    snr_max_db: 40
+    snr_start_db: 40
+  norm_patch_loss: true
+  norm_patch_loss_eps: 1.0e-06
+  num_workers: 4
+  optimizer:
+    betas:
+    - 0.9
+    - 0.999
+    lr: 0.0005
+    type: adamw
+    weight_decay: 0.005
+  patience: 500
+  save_best: true
+  save_checkpoint_every_n: 10
+  scheduler:
+    T_max: 500
+    eta_min: 5.0e-06
+    type: cosine
+    warmup_epochs: 10

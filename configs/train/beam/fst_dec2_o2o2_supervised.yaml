@@ -1,0 +1,83 @@
+# Supervised beam prediction: factorized encoder, no masking, linear head + CE loss.
+
+model:
+  type: "temporalenc_beam"
+  encoder_type: "factorized"
+
+  input_shape: [14, 32, 32]
+  patch_size: [1, 4, 4]
+
+  embedding:
+    type: "linear"
+
+  positional_encoding:
+    encoder:
+      type: "sinusoidal_concat"
+    decoder:
+      type: "sinusoidal_concat"
+
+  # Unused for supervised training
+  masking:
+    strategy: "factorized"
+    num_time_keep: 2
+    spatial_mask_ratio: 0.9
+
+  norm_first: false
+
+  encoder_dim: 128
+  encoder_layers: 3
+  encoder_nhead: 8
+  decoder_layers: 2  # unused for supervised training
+  decoder_nhead: 4  # unused for supervised training
+
+task:
+  beam_prediction:
+    n_h: 8
+    n_v: 4
+    o_h: 2
+    o_v: 2
+    antenna_order: "hv"
+    label_mode: "snapshot"
+    top_k: 1
+
+data:
+  data_dir: "/home/berkay/Desktop/CSIGen/PilotWiMAE/train_35"
+  normalize: true
+  val_split: 0.1
+  debug_size: null
+  calculate_statistics: false
+  statistics:
+    mean_power: 1.4218511784624965e-11
+
+training:
+  batch_size: 256
+  epochs: 200
+  num_workers: 4
+  device: "cuda:0"
+
+  optimizer:
+    type: "adamw"
+    lr: 0.0005
+    weight_decay: 0.05
+    betas: [0.9, 0.999]
+
+  scheduler:
+    type: "cosine"
+    T_max: 200
+    warmup_epochs: 10
+    eta_min: 0.000005
+
+  loss: "cross_entropy"
+
+  mixed_precision: true
+
+  patience: 200
+  min_delta: 0.0001
+  gradient_clip_val: 1.0
+  save_checkpoint_every_n: 10
+  save_best: true
+
+logging:
+  log_dir: "runs"
+  tensorboard: true
+  log_every_n_steps: 100

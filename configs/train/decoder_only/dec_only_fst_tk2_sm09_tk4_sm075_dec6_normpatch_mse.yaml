@@ -1,0 +1,108 @@
+# Stage-2 decoder-only pretraining for PilotWiMAE.
+
+model:
+  type: "pilotwimae"
+  encoder_type: "factorized"
+
+  input_shape: [14, 32, 32]       # (T, S, F) — must match stage-1
+  patch_size: [1, 4, 4]           # must match stage-1
+
+  embedding:
+    type: "linear"
+
+  positional_encoding:
+    encoder:
+      type: "sinusoidal_concat"
+    decoder:
+      type: "sinusoidal_concat"
+
+  masking:
+    strategy: "factorized"
+    num_time_keep: 4
+    spatial_mask_ratio: 0.75
+
+  norm_first: false
+
+  # Encoder dims must match stage-1 exactly so weights load correctly.
+  encoder_dim: 128
+  encoder_layers: 3
+  encoder_nhead: 8
+
+  # Decoder is randomly reinitialised; depth/heads can differ freely from stage-1.
+  decoder_layers: 6
+  decoder_nhead: 8
+
+data:
+  data_dir: "/home/berkay/Desktop/CSIGen/PilotWiMAE/train_35"
+
+  normalize: true
+  val_split: 0.1
+  debug_size: null
+
+  calculate_statistics: false
+  statistics:
+    mean_power: 1.4218511784624965e-11
+
+training:
+  batch_size: 512
+  epochs: 200
+  num_workers: 4
+  device: "cuda:0"
+
+  # Hard freeze: encoder params are excluded from the optimizer entirely.
+  freeze_encoder: true
+
+  optimizer:
+    type: "adamw"
+    lr: 0.0001
+    weight_decay: 0.005
+    betas: [0.9, 0.999]
+    # Uncomment for soft freeze (requires freeze_encoder: false):
+    # encoder_lr: 1.0e-5
+
+  scheduler:
+    type: "cosine"
+    T_max: 200
+    warmup_epochs: 10
+    eta_min: 0.000001
+
+  # Reconstruction loss recipe (normpatch_mse).
+  loss: "mse"
+
+  norm_patch_loss: true
+  norm_patch_loss_eps: 1.0e-6
+
+  # Disabled for stage-2: the main reconstruction loss already supervises
+  # whatever scale information the targets carry.
+  scale_loss:
+    use_scale_loss: false
+    lambda_enc: 0.1
+    lambda_dec: 0.1
+    eps: 1.0e-8
+
+  mixed_precision: true
+
+  patience: 200
+  min_delta: 0.0001
+
+  gradient_clip_val: 1.0
+
+  save_checkpoint_every_n: 10
+  save_best: true
+
+  resume:
+    # Path to the best checkpoint from the stage-1 run (absolute or CWD-relative).
+    checkpoint_path: "runs/self_supervised/FST_noise_scale/best_checkpoint.pt"
+    # Load encoder weights only — decoder is randomly reinitialised.
+    encoder_only: true
+    # Always start with a fresh optimizer and scheduler for stage-2.
+    load_optimizer: false
+    load_scheduler: false
+    reset_best_val_loss: true
+    reset_patience: true
+
+logging:
+  log_dir: "runs"
+  tensorboard: true
+  log_every_n_steps: 100
+  exp_name: "dec_only_fst_tk4_sm075_dec6_normpatch_mse_from_FST_noise_scale"

@@ -1,0 +1,67 @@
+data:
+  calculate_statistics: false
+  data_dir: /home/berkay/Desktop/CSIGen/TemporalWiMAE/train_35
+  debug_size: null
+  normalize: true
+  statistics:
+    mean_power: 1.4218511784624965e-11
+  val_split: 0.1
+logging:
+  log_dir: runs
+  log_every_n_steps: 100
+  tensorboard: true
+model:
+  decoder_layers: 2
+  decoder_nhead: 8
+  embedding:
+    type: linear
+  encoder_dim: 128
+  encoder_layers: 6
+  encoder_nhead: 8
+  encoder_type: standard
+  input_shape:
+  - 14
+  - 32
+  - 32
+  masking:
+    mask_ratio: 0.9
+    strategy: tube
+  norm_first: false
+  patch_size:
+  - 1
+  - 4
+  - 4
+  positional_encoding:
+    decoder:
+      type: sinusoidal_concat
+    encoder:
+      type: sinusoidal_concat
+    mask_ratio: 0.928
+  type: temporalenc_ce
+task:
+  channel_estimation:
+    pilot_pattern: t:2,11;f:0,2,4,6
+training:
+  batch_size: 256
+  device: cuda:1
+  epochs: 300
+  gradient_clip_val: 1.0
+  loss: mse
+  min_delta: 0.0001
+  mixed_precision: true
+  num_workers: 4
+  optimizer:
+    betas:
+    - 0.9
+    - 0.999
+    lr: 0.0005
+    type: adamw
+    weight_decay: 0.005
+  patience: 300
+  save_best: true
+  save_checkpoint_every_n: 10
+  scheduler:
+    T_max: 300
+    eta_min: 5.0e-06
+    type: cosine
+    warmup_epochs: 10

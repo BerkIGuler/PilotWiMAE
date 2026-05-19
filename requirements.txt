@@ -1,0 +1,8 @@
+numpy==2.1.2
+PyYAML==6.0.2
+tqdm==4.67.1
+
+# Optional
+tensorboard==2.19.0
+matplotlib==3.10.0
+pytest==8.4.1
